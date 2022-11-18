@@ -26,7 +26,8 @@ error per piece and the secret string will still be recoverable.
 mkdir build
 cd build
 conan install ..
-conan build
+cmake .. -DCMAKE_CXX_COMPILER=g++-10
+make
 ```
 
 Binary file will be in `build/bin`. 

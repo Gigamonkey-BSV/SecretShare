@@ -3,7 +3,7 @@ from conans import ConanFile, CMake
 
 class SecretShareConan(ConanFile):
     name = "SecretShare"
-    version = "0.2.4"
+    version = "1.1"
     license = "MIT"
     author = "Daniel Krawisz"
     url = "https://github.com/Gigamonkey-BSV/SecretShare"
