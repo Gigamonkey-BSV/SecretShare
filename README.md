@@ -1,4 +1,4 @@
-# Shamir Secret Share 
+# SecretShare: a simple Shamir's secret sharing program
 
 This program will take some data as an ASCII string and split it
 up into N pieces, M <= N of which can be used to reconstruct the 
@@ -10,11 +10,16 @@ error per piece and the secret string will still be recoverable.
 
 ### Split 
 
+Generate M messages, N of which can be used to restore the original secret
+requires entropy provided by the user.
+
 ```
 ./SecretShare split <secret: string> <num_pieces: uint> <threshold: uint>
 ```
 
 ### Merge
+
+From any number of messages >= N, restore the original secret.
 
 ```
 ./SecretShare merge <threshold: uint> <pieces: string...>
