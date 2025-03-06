@@ -32,10 +32,14 @@ namespace Gigamonkey {
 
         if (threshold == 0 || threshold > shares) throw exception (6) << "argument 4 (threshold) must be greater than zero and less than shares.";
 
-        crypto::user_entropy entropy
-            {"Please seed random number generator with entropy.", "Entropy accepted", std::cout, std::cin};
+        crypto::user_entropy entropy {
+            "Please seed random number generator with entropy.",
+            "Please give us more entropy. We do not have enough yet!",
+            "Entropy accepted", std::cout, std::cin};
 
-        crypto::NIST::DRBG random {crypto::NIST::DRBG::HMAC, entropy, bytes {}, 302};
+        crypto::NIST::DRBG random {
+            crypto::NIST::DRBG::HMAC,
+            {entropy, bytes {}, 302}};
 
         cross<crypto::secret_share> secret_shares =
             crypto::secret_share_split (*random.Random, bytes (message), static_cast<uint32> (shares), static_cast<uint32> (threshold));
@@ -52,7 +56,7 @@ namespace Gigamonkey {
     
     std::string secret_share_merge (list<string> args) {
 
-        maybe<N_bytes_little> threshold_arg = encoding::decimal::read<endian::little> (args.first ());
+        maybe<N_bytes_little> threshold_arg = encoding::decimal::read<endian::little, byte> (args.first ());
 
         uint64 threshold;
         {
