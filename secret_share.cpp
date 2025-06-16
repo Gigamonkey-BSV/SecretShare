@@ -1,4 +1,5 @@
 #include <gigamonkey/schema/hd.hpp>
+#include <gigamonkey/schema/random.hpp>
 #include <gigamonkey/p2p/checksum.hpp>
 #include <data/crypto/NIST_DRBG.hpp>
 #include <data/crypto/secret_share.hpp>
@@ -32,14 +33,16 @@ namespace Gigamonkey {
 
         if (threshold == 0 || threshold > shares) throw exception (6) << "argument 4 (threshold) must be greater than zero and less than shares.";
 
-        crypto::user_entropy entropy {
-            "Please seed random number generator with entropy.",
-            "Please give us more entropy. We do not have enough yet!",
-            "Entropy accepted", std::cout, std::cin};
+        auto entropy = std::make_shared<crypto::entropy_sum> (
+            std::make_shared<crypto::user_entropy> (
+                "Please seed random number generator with entropy.",
+                "Please give us more entropy. We do not have enough yet!",
+                "Entropy accepted", std::cout, std::cin),
+            std::make_shared<Gigamonkey::bitcoind_entropy> ());
 
         crypto::NIST::DRBG random {
             crypto::NIST::DRBG::HMAC,
-            {entropy, bytes {}, 302}};
+            {*entropy, bytes {}, 302}};
 
         cross<crypto::secret_share> secret_shares =
             crypto::secret_share_split (*random.Random, bytes (message), static_cast<uint32> (shares), static_cast<uint32> (threshold));
@@ -56,7 +59,7 @@ namespace Gigamonkey {
     
     std::string secret_share_merge (list<string> args) {
 
-        maybe<N_bytes_little> threshold_arg = encoding::decimal::read<endian::little, byte> (args.first ());
+        maybe<data::N_bytes_little> threshold_arg = encoding::decimal::read<data::endian::little, byte> (args.first ());
 
         uint64 threshold;
         {
@@ -82,7 +85,7 @@ namespace Gigamonkey {
 
         bytes merged = crypto::secret_share_merge (shares, static_cast<byte> (threshold));
 
-        ASCII merged_string {merged};
+        data::ASCII merged_string {merged};
         // valid ASCII has no negative chars
         if (!merged_string.valid ())
             throw exception (8) << "invalid string recovered; here it is in hex: " << encoding::hex::write(merged);

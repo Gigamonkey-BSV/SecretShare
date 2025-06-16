@@ -41,6 +41,8 @@ find_package (pegtl REQUIRED)
 # If we do not have PegTL
 #   * on linux, `sudo apt-get install tao-pegtl-dev`
 
+find_package (PkgConfig REQUIRED)
+
 IF (WIN32)
   pkg_check_modules (cryptopp REQUIRED IMPORTED_TARGET cryptopp)
 ELSE ()
@@ -58,8 +60,7 @@ FetchContent_MakeAvailable (argh)
 FetchContent_Declare (ctre URL https://github.com/hanickadot/compile-time-regular-expressions/archive/refs/tags/v3.9.0.zip)
 FetchContent_MakeAvailable (ctre)
 
-find_package (PkgConfig REQUIRED)
-pkg_check_modules(Cryptopp REQUIRED IMPORTED_TARGET libcrypto++)
+find_package (data CONFIG REQUIRED)
 
 find_package (gigamonkey CONFIG REQUIRED)
 
