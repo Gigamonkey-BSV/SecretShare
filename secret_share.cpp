@@ -1,12 +1,19 @@
+
+
+#include <data/crypto/secret_share.hpp>
+#include <data/encoding/ascii.hpp>
+#include <data/io/random.hpp>
+
 #include <gigamonkey/schema/hd.hpp>
 #include <gigamonkey/schema/random.hpp>
 #include <gigamonkey/p2p/checksum.hpp>
-#include <data/crypto/NIST_DRBG.hpp>
-#include <data/crypto/secret_share.hpp>
-#include <data/encoding/ascii.hpp>
 
 std::ostream inline &operator << (std::ostream &o, const data::crypto::secret_share &x) {
     return o << Gigamonkey::base58::check (static_cast<data::byte> (x.Index), x.Data).encode ();
+}
+
+namespace data::random {
+    bytes Personalization {string ("Secret Share v1.5 noop nyuup zadooop!! ##)))")};
 }
 
 namespace Gigamonkey {
@@ -33,19 +40,10 @@ namespace Gigamonkey {
 
         if (threshold == 0 || threshold > shares) throw exception (6) << "argument 4 (threshold) must be greater than zero and less than shares.";
 
-        auto entropy = std::make_shared<crypto::entropy_sum> (
-            std::make_shared<crypto::user_entropy> (
-                "Please seed random number generator with entropy.",
-                "Please give us more entropy. We do not have enough yet!",
-                "Entropy accepted", std::cout, std::cin),
-            std::make_shared<Gigamonkey::bitcoind_entropy> ());
-
-        crypto::NIST::DRBG random {
-            crypto::NIST::DRBG::HMAC,
-            {*entropy, bytes {}, 302}};
+        data::random::init ({.strength = 256});
 
         cross<crypto::secret_share> secret_shares =
-            crypto::secret_share_split (*random.Random, bytes (message), static_cast<uint32> (shares), static_cast<uint32> (threshold));
+            crypto::secret_share_split (crypto::random::get (), bytes (message), static_cast<uint32> (shares), static_cast<uint32> (threshold));
 
         list<string> output;
         for (const crypto::secret_share &x : secret_shares)
