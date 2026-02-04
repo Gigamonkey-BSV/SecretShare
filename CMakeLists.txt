@@ -131,7 +131,7 @@ find_package (gigamonkey CONFIG REQUIRED)
 
 add_executable (SecretShare secret_share.cpp)
 
-target_link_libraries (SecretShare PUBLIC nlohmann_json Data::string Data::crypto Data::io Gigamonkey::base58_check)
+target_link_libraries (SecretShare PUBLIC Gigamonkey::base58_check Data::io Data::crypto nlohmann_json)
 target_include_directories (SecretShare PUBLIC include)
 
 target_compile_features (SecretShare PUBLIC cxx_std_23)
@@ -139,4 +139,3 @@ set_target_properties (SecretShare PROPERTIES CXX_EXTENSIONS OFF)
 
 install (DIRECTORY include/ DESTINATION include)
 install (TARGETS SecretShare)
-
